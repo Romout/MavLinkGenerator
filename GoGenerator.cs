@@ -53,19 +53,20 @@ namespace MavLinkGenerator
 					continue;
 
 				enumName = CamelCase(enumName);
-
 				sb.AppendLine();
 
 				string description = node.ChildValue("description");
 				if (!string.IsNullOrEmpty(description))
 					AddComment(sb, description);
 
-				sb.AppendLine(string.Format("type {0} byte", enumName));
-				sb.AppendLine();
+				//sb.AppendLine(string.Format("type {0} byte", enumName));
+				//sb.AppendLine();
 
 				XmlNodeList enumValues = node.SelectNodes("entry");
 				
 				sb.AppendLine("const (");
+				bool iotaWritten = false;
+				int lastValue = 0;
 				for (int i = 0; i < enumValues.Count; ++i)
 				{
 					XmlNode enumValue = enumValues[i];
@@ -80,13 +81,20 @@ namespace MavLinkGenerator
 					if (!string.IsNullOrEmpty(valueDescription))
 						AddComment(sb, valueDescription, 1);
 
-					sb.Append(Indent(1) + name + " " + enumName);
+					sb.Append(Indent(1) + name);
 					if (i == 0)
 					{
+						//sb.Append(" " + enumName);
 						if (value == null)
+						{
 							sb.Append(" = iota");
+							iotaWritten = true;
+						}
 						else
+						{
 							sb.Append(" = " + value);
+							lastValue = int.Parse(value);
+						}
 
 						sb.AppendLine();
 					}
@@ -94,8 +102,10 @@ namespace MavLinkGenerator
 					{
 						if (value != null)
 							sb.AppendLine(" = " + value);
-						else
+						else if (iotaWritten)
 							sb.AppendLine();
+						else
+							sb.AppendLine(" = " + (++lastValue).ToString());
 					}
 				}
 				sb.AppendLine(")");
