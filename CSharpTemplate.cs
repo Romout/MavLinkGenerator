@@ -32,6 +32,10 @@ namespace SpaceLeap
 		{
 			public event PropertyChangedEventHandler PropertyChanged;
 
+			public enum MessageType
+			{
+/*MESSAGETYPEENUM*/			}
+
 			protected static Dictionary<byte, Type> _messageTypes = new Dictionary<byte, Type>();
 
 			private static byte _packageSequence = 0;
@@ -47,6 +51,14 @@ namespace SpaceLeap
 				get
 				{
 					return _messageId;
+				}
+			}
+
+			public MessageType Message
+			{
+				get
+				{
+					return (MessageType)_messageId;
 				}
 			}
 

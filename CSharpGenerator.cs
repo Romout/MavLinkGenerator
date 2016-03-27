@@ -66,7 +66,7 @@ namespace MavLinkGenerator
 				if (!string.IsNullOrEmpty(description))
 					AddComment(sb, description);
 
-				sb.AppendLine(string.Format(Indent(2) + "enum {0}", enumName));
+				sb.AppendLine(string.Format(Indent(2) + "public enum {0}", enumName));
 				sb.AppendLine(Indent(2) + "{");
 				XmlNodeList enumValues = node.SelectNodes("entry");
 				foreach (XmlNode enumValue in enumValues)
@@ -97,6 +97,7 @@ namespace MavLinkGenerator
 		protected override void GenerateMessages(XmlDocument document, ref string template)
 		{
 			StringBuilder sb = new StringBuilder();
+			StringBuilder enumSb = new StringBuilder();
 
 			XmlNodeList messageNodes = document.SelectNodes("/mavlink/messages/message");
 			foreach (XmlNode messageNode in messageNodes)
@@ -129,6 +130,8 @@ namespace MavLinkGenerator
 				sb.AppendLine(string.Format("{0}MessageBase._messageTypes.Add({1}, typeof({2}));", Indent(4), messageId, name));
 				sb.AppendLine(Indent(3) + "}");
 				sb.AppendLine();
+
+				enumSb.AppendLine(string.Format("{0}{2} = {1},", Indent(4), messageId, name));
 
 				AddComment(sb, "Default Constructor to initialize type fields", 3);
 				sb.AppendLine(string.Format("{0}public {1}()", Indent(3), name));
@@ -169,6 +172,7 @@ namespace MavLinkGenerator
 			}
 
 			template = template.Replace("/*MESSAGES*/", sb.ToString());
+			template = template.Replace("/*MESSAGETYPEENUM*/", enumSb.ToString());
 		}
 
 		private void GenerateProperty(StringBuilder sb, FieldDefinition field, int index, int indent)
